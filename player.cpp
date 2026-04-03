@@ -1,7 +1,22 @@
 #include "player.h"
 #include <cmath>
 
-void Player::computeForward(float yaw, float pitch){
+void Player::move(float dx, float dy, float dz) {
+    position += glm::vec3(dx, dy, dz);
+    make_view_matrix();
+}
+
+void Player::change_pitch(float delta_pitch) {
+    pitch += delta_pitch;
+    make_view_matrix();
+}
+
+void Player::change_yaw(float delta_yaw) {
+    yaw += delta_yaw;
+    make_view_matrix();
+}
+
+void Player::computeForward(){
     forward.x = std::cos(yaw) * std::cos(pitch);
     forward.y = std::sin(pitch);
     forward.z = std::sin(yaw) * std::cos(pitch);
@@ -9,7 +24,7 @@ void Player::computeForward(float yaw, float pitch){
 }
 
 void Player::make_view_matrix(){
-    glm::vec3 eye = postion;
+    glm::vec3 eye = position;
     glm::vec3 world_up = glm::vec3(0, 1, 0);
     glm::vec3 f = glm::normalize(forward);
     glm::vec3 r = glm::normalize(glm::cross(f, world_up));
