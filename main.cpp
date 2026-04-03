@@ -1,4 +1,5 @@
 #include "render.h"
+#include "chunks.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 
@@ -28,7 +29,7 @@ int main() {
     }
 
     Renderer renderer;
-    renderer.renderer_init(); // ✅ now safe
+    renderer.renderer_init();
 
     while (!glfwWindowShouldClose(window)) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)

@@ -20,8 +20,10 @@ endmacro()
 add_executable(minecraft_clone main.cpp
         render.cpp
         render.h
-        blocks.cpp
-        blocks.h)
+        chunks.cpp
+        chunks.h
+        player.cpp
+        player.h)
 
 add_glad()
 add_glfw()

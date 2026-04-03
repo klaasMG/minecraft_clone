@@ -13,7 +13,7 @@ private:
     GLuint compileShader(GLenum type, const char *source);
     GLuint createProgram(const char* vertex_shader_src, const char* fragment_shader_src);
     GLuint VBO, VAO;
-    GLuint shaderProgram = 0;
+    GLuint shaderProgram;
     const char* vertexShaderSrc = R"(
     #version 330 core
     layout (location = 0) in vec3 aPos;
