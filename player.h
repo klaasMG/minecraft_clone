@@ -8,15 +8,20 @@ class Player {
 public:
     void change_yaw(float delta_yaw);
     void change_pitch(float delta_pitch);
-    void move(float dx, float dy, float dz);
+    void move_forward(float amount);
+    void move_right(float amount);
+    void move_up(float amount);
+    void make_projection_matrix(float fov, float aspect, float near, float far);
     float pitch = 0;
     float yaw = 0;
-private:
-    void computeForward();
-    void make_view_matrix();
-    glm::vec3 position = glm::vec3(0);
     glm::mat4x4 view = glm::mat4x4(0);
     glm::mat4x4 projection = glm::mat4x4(0);
+    void make_view_matrix();
+    void computeForward();
+    glm::vec3 position = glm::vec3(0);
+
+private:
+    float velocity = 5;
     glm::vec3 center = glm::vec3(0);
     glm::vec3 forward = glm::vec3(0);
 };

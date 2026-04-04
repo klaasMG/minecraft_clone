@@ -5,6 +5,9 @@
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    Player* player = static_cast<Player*>(glfwGetWindowUserPointer(window));
+    float aspect = static_cast<float>(width) / static_cast<float>(height);
+    player->make_projection_matrix(90.0f, aspect, 0.1f, 100.0f);
     glViewport(0, 0, width, height);
 }
 
@@ -64,15 +67,44 @@ int main() {
 
     Renderer renderer;
     renderer.renderer_init();
+    ChunkManager chunk_manager;
     Player player;
+    player.make_projection_matrix(90.0f, 1.0f, 0.1f, 100.0f);
+    player.computeForward();
+    player.make_view_matrix();
+    chunk_manager.get_chunks(glm::i64vec2(player.position[0], player.position[1]), 0);
 
     glfwSetWindowUserPointer(window, &player);
 
     while (!glfwWindowShouldClose(window)) {
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(window, true);
-
-        renderer.render();
+        }
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+            player.move_forward(1);
+            std::cout << "w" <<std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+            player.move_forward(-1);
+            std::cout << "s" <<std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+            player.move_right(1);
+            std::cout << "a" <<std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+            player.move_right(-1);
+            std::cout << "d" <<std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            player.move_up(1);
+            std::cout << "space" <<std::endl;
+        }
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+            player.move_up(-1);
+            std::cout << "shift" <<std::endl;
+        }
+        renderer.render(player.view, player.projection);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

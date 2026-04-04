@@ -1,18 +1,36 @@
 #include "player.h"
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
 #include <cmath>
+#include <iostream>
 
-void Player::move(float dx, float dy, float dz) {
-    position += glm::vec3(dx, dy, dz);
+void Player::move_forward(float amount) {
+    position += forward * amount;
+    make_view_matrix();
+}
+
+void Player::move_right(float amount) {
+    glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0, 1, 0)));
+    position += right * amount;
+    make_view_matrix();
+}
+
+void Player::move_up(float amount) {
+    glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0, 1, 0)));
+    glm::vec3 up = glm::normalize(glm::cross(right, forward));
+    position += up * amount;
     make_view_matrix();
 }
 
 void Player::change_pitch(float delta_pitch) {
     pitch += delta_pitch;
+    computeForward();
     make_view_matrix();
 }
 
 void Player::change_yaw(float delta_yaw) {
     yaw += delta_yaw;
+    computeForward();
     make_view_matrix();
 }
 
@@ -24,25 +42,26 @@ void Player::computeForward(){
 }
 
 void Player::make_view_matrix(){
-    glm::vec3 eye = position;
-    glm::vec3 world_up = glm::vec3(0, 1, 0);
-    glm::vec3 f = glm::normalize(forward);
-    glm::vec3 r = glm::normalize(glm::cross(f, world_up));
-    glm::vec3 u = glm::cross(r, f);
+    glm::vec3 target = position + forward;
+    view = glm::lookAt(position, target, glm::vec3(0, 1, 0));
 
-    view[0][0] = r.x;
-    view[1][0] = r.y;
-    view[2][0] = r.z;
+    std::cout << "View matrix:" << std::endl;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            std::cout << view[j][i] << " ";
+        }
+        std::cout << std::endl;
+    }
+}
 
-    view[0][1] = u.x;
-    view[1][1] = u.y;
-    view[2][1] = u.z;
+void Player::make_projection_matrix(float fov, float aspect, float near, float far){
+    projection = glm::perspective(glm::radians(fov), aspect, near, far);
 
-    view[0][2] = -f.x;
-    view[1][2] = -f.y;
-    view[2][2] = -f.z;
-
-    view[3][0] = -glm::dot(r, eye);
-    view[3][1] = -glm::dot(u, eye);
-    view[3][2] =  glm::dot(f, eye);
+    std::cout << "Projection matrix:" << std::endl;
+    for (int i = 0; i < 4; i++) {
+        for (int j = 0; j < 4; j++) {
+            std::cout << projection[j][i] << " ";
+        }
+        std::cout << std::endl;
+    }
 }

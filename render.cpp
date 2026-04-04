@@ -1,6 +1,20 @@
+#include "player.h"
 #include "render.h"
 #include <glad/glad.h>
 #include <iostream>
+
+void Renderer::bind_ubo() {
+    glGenBuffers(1, &UBO);
+    glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, nullptr, GL_DYNAMIC_DRAW);
+}
+
+void Renderer::update_ubo(const glm::mat4x4& proj, const glm::mat4x4& view) {
+    glBindBuffer(GL_UNIFORM_BUFFER, UBO);
+
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &proj);
+    glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), &view);
+}
 
 GLuint Renderer::compileShader(GLenum type, const char* source) {
     GLuint shader = glCreateShader(type);
@@ -45,58 +59,58 @@ void Renderer::renderer_init() {
 
     float vertices[] = {
         // Front
-        -0.5f, -0.5f,  0.5f,
-         0.5f, -0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f,
+         4.5f, -0.5f,  0.5f,
+         5.5f, -0.5f,  0.5f,
+         5.5f,  0.5f,  0.5f,
 
-         0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
+         5.5f,  0.5f,  0.5f,
+         4.5f,  0.5f,  0.5f,
+         4.5f, -0.5f,  0.5f,
 
         // Back
-        -0.5f, -0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
+         4.5f, -0.5f, -0.5f,
+         4.5f,  0.5f, -0.5f,
+         5.5f,  0.5f, -0.5f,
 
-         0.5f,  0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
+         5.5f,  0.5f, -0.5f,
+         5.5f, -0.5f, -0.5f,
+         4.5f, -0.5f, -0.5f,
 
         // Left
-        -0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f, -0.5f,
+         4.5f,  0.5f,  0.5f,
+         4.5f,  0.5f, -0.5f,
+         4.5f, -0.5f, -0.5f,
 
-        -0.5f, -0.5f, -0.5f,
-        -0.5f, -0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f,
+         4.5f, -0.5f, -0.5f,
+         4.5f, -0.5f,  0.5f,
+         4.5f,  0.5f,  0.5f,
 
         // Right
-         0.5f,  0.5f,  0.5f,
-         0.5f, -0.5f, -0.5f,
-         0.5f,  0.5f, -0.5f,
+         5.5f,  0.5f,  0.5f,
+         5.5f, -0.5f, -0.5f,
+         5.5f,  0.5f, -0.5f,
 
-         0.5f, -0.5f, -0.5f,
-         0.5f,  0.5f,  0.5f,
-         0.5f, -0.5f,  0.5f,
+         5.5f, -0.5f, -0.5f,
+         5.5f,  0.5f,  0.5f,
+         5.5f, -0.5f,  0.5f,
 
         // Top
-        -0.5f,  0.5f, -0.5f,
-        -0.5f,  0.5f,  0.5f,
-         0.5f,  0.5f,  0.5f,
+         4.5f,  0.5f, -0.5f,
+         4.5f,  0.5f,  0.5f,
+         5.5f,  0.5f,  0.5f,
 
-         0.5f,  0.5f,  0.5f,
-         0.5f,  0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
+         5.5f,  0.5f,  0.5f,
+         5.5f,  0.5f, -0.5f,
+         4.5f,  0.5f, -0.5f,
 
         // Bottom
-        -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f,  0.5f,
+         4.5f, -0.5f, -0.5f,
+         5.5f, -0.5f,  0.5f,
+         4.5f, -0.5f,  0.5f,
 
-         0.5f, -0.5f,  0.5f,
-        -0.5f, -0.5f, -0.5f,
-         0.5f, -0.5f, -0.5f
+         5.5f, -0.5f,  0.5f,
+         4.5f, -0.5f, -0.5f,
+         5.5f, -0.5f, -0.5f
     };
 
     glGenVertexArrays(1, &VAO);
@@ -111,6 +125,10 @@ void Renderer::renderer_init() {
     glEnableVertexAttribArray(0);
 
     shaderProgram = createProgram(vertexShaderSrc, fragmentShaderSrc);
+    bind_ubo();
+    GLuint blockIndex = glGetUniformBlockIndex(shaderProgram, "Matrices");
+    glUniformBlockBinding(shaderProgram, blockIndex, 0);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, UBO);
 }
 
 void Renderer::renderer_destroy() {
@@ -119,9 +137,11 @@ void Renderer::renderer_destroy() {
     glDeleteProgram(shaderProgram);
 }
 
-void Renderer::render() {
+void Renderer::render(const glm::mat4x4& view, const glm::mat4& proj, const std::vector<glm::mat4x4>& model_matricies, const std::vector<std::vector<glm::mat4x4>>& model_meshes) {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    update_ubo(proj, view);
 
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);

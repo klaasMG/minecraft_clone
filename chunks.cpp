@@ -1,5 +1,19 @@
 #include "chunks.h"
 #include "vec3.hpp"
+#include "mat4x4.hpp"
+#include "ext/matrix_transform.hpp"
+
+glm::mat4x4 createModelMatrix(const glm::i64vec2& worldPos) {
+    glm::vec3 position(
+        static_cast<float>(worldPos.x),
+        0.0f,
+        static_cast<float>(worldPos.y)
+    );
+
+    glm::mat4 model(1.0f);
+    model = glm::translate(model, position);
+    return model;
+}
 
 chunk ChunkManager::create_chunk(const glm::i64vec2& world_pos){
     auto result = std::make_unique<chunk>();
@@ -46,6 +60,26 @@ std::vector<std::vector<glm::vec4>> ChunkManager::get_meshes(const glm::i64vec2&
     }
 
     return mesh_results;
+}
+
+std::vector<glm::mat4x4> ChunkManager::get_model_matricies(const glm::i64vec2& chunk_pos, int radius) {
+    std::vector<glm::mat4x4> model_matricies_result;
+
+    for (int dx = -radius; dx <= radius; ++dx){
+        for (int dz = -radius; dz <= radius; ++dz){
+            glm::i64vec2 pos(chunk_pos.x + dx, chunk_pos.y + dz);
+            model_matricies_result.emplace_back(get_model_matrix(pos));
+        }
+    }
+
+    return model_matricies_result;
+}
+
+glm::mat4x4 ChunkManager::get_model_matrix(const glm::i64vec2& chunk_pos) {
+    chunk& model_chunk = get_chunk(chunk_pos);
+    glm::i64vec2 world_pos = model_chunk.world_pos;
+    glm::mat4x4 model_matrix = createModelMatrix(world_pos);
+    return model_matrix;
 }
 
 chunk& ChunkManager::get_chunk(const glm::i64vec2& chunk_pos) {
@@ -156,6 +190,6 @@ std::vector<glm::vec4>& ChunkManager::get_mesh(const chunk& mesh_chunk) {
     }
 
     std::vector<glm::vec4>& ref = *vertices;
-    meshes.emplace(mesh_chunk.world_pos, std::move(vertices));
-    return ref;
+    auto inserted = meshes.emplace(mesh_chunk.world_pos, std::move(vertices));
+    return *(inserted.first->second);
 }

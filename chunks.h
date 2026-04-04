@@ -4,6 +4,7 @@
 #include "chunks.h"
 #include "vec2.hpp"
 #include "vec4.hpp"
+#include "mat4x4.hpp"
 #include <cstdint>
 #include <array>
 #include <vector>
@@ -32,15 +33,13 @@ struct chunk {
     glm::i64vec2 world_pos;
 };
 
-enum class chunk_data_type {
-    CHUNKS,
-    MESHES,
-};
 
 class ChunkManager {
 public:
     std::vector<glm::vec4>& get_mesh(const chunk& mesh_chunk);
     chunk& get_chunk(const glm::i64vec2& chunk_pos);
+    glm::mat4x4 get_model_matrix(const glm::i64vec2& chunk_pos);
+    std::vector<glm::mat4x4> get_model_matricies(const glm::i64vec2& chunk_pos, int radius);
     std::vector<std::reference_wrapper<chunk>> get_chunks(const glm::i64vec2& center, int radius);
     std::vector<std::vector<glm::vec4>> get_meshes(const glm::i64vec2& center, int radius);
     static chunk create_chunk(const glm::i64vec2& world_pos);
