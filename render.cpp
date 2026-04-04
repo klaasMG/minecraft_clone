@@ -137,21 +137,23 @@ void Renderer::renderer_destroy() {
     glDeleteProgram(shaderProgram);
 }
 
-void Renderer::render(const glm::mat4x4& view, const glm::mat4& proj, const std::vector<ChunkRenderDate>& chunck_render_data, const std::vector<std::vector<glm::vec4>>& meshes) {
+void Renderer::render(const glm::mat4x4& view, const glm::mat4& proj) {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    render_mutex.lock();
 
     update_ubo(proj, view);
 
     size_t total_vertices = 0;
-    for (const auto& data : chunck_render_data) {
+    for (const auto& data : *chunk_render_data) {
         total_vertices += data.num_vertices;
     }
 
     if (total_vertices > 0) {
         std::vector<glm::vec4> all_vertices;
         all_vertices.reserve(total_vertices);
-        for (const auto& mesh : meshes) {
+        for (const auto& mesh : *meshes) {
             all_vertices.insert(all_vertices.end(), mesh.begin(), mesh.end());
         }
 
@@ -167,9 +169,17 @@ void Renderer::render(const glm::mat4x4& view, const glm::mat4& proj, const std:
 
     GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
 
-    for (const auto& data : chunck_render_data) {
+    for (const auto& data : *chunk_render_data) {
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &data.model_matrix[0][0]);
         glDrawArrays(GL_TRIANGLES, data.vertex_offset, data.num_vertices);
     }
     std::cout << "Renderd:" <<total_vertices << std::endl;
+    render_mutex.unlock();
+}
+
+void Renderer::exchange_data(const std::vector<ChunkRenderDate>& chunck_render_data, const std::vector<std::vector<glm::vec4>>& meshes) {
+    render_mutex.lock();
+    this->chunk_render_data = std::make_unique<std::vector<ChunkRenderDate>>(chunck_render_data);
+    this->meshes = std::make_unique<std::vector<std::vector<glm::vec4>>>(meshes);
+    render_mutex.unlock();
 }

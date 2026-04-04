@@ -97,7 +97,8 @@ void Application::run_app() {
         }
         auto chunk_render_data = chunk_manager.get_chunk_render_date(glm::i64vec2(player.position[0], player.position[2]), 2);
         auto meshes = chunk_manager.get_meshes(glm::i64vec2(player.position[0], player.position[2]), 2);
-        renderer.render(player.view, player.projection, chunk_render_data, meshes);
+        renderer.exchange_data(chunk_render_data, meshes);
+        renderer.render(player.view, player.projection);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
