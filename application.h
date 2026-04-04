@@ -5,6 +5,7 @@
 #include "chunks.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <thread>
 
 class Application {
 public:
@@ -16,6 +17,8 @@ private:
     Player player;
     ChunkManager chunk_manager;
     Renderer renderer;
+    std::thread render_thread;
+    bool running = true;
 };
 
 #endif //MINECRAFT_CLONE_APPLICATION_H

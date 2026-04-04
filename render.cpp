@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include <iostream>
 
+#include "GLFW/glfw3.h"
+
 void Renderer::bind_ubo() {
     glGenBuffers(1, &UBO);
     glBindBuffer(GL_UNIFORM_BUFFER, UBO);
@@ -137,25 +139,36 @@ void Renderer::renderer_destroy() {
     glDeleteProgram(shaderProgram);
 }
 
-void Renderer::render(const glm::mat4x4& view, const glm::mat4& proj) {
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+void Renderer::render() {
+    std::cout << "Rendering..." << std::endl;
+    render_mutex.lock();
+    glClearColor(0.51f, 0.1f, 0.1f, 1.0f);
+    std::cout << "Rendering" << std::endl;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    render_mutex.lock();
 
     update_ubo(proj, view);
+
+    std::cout << "Rendering" << std::endl;
 
     size_t total_vertices = 0;
     for (const auto& data : *chunk_render_data) {
         total_vertices += data.num_vertices;
     }
 
+    std::cout << "Rendering" << std::endl;
+
+    std::cout << "Total vertices: " << total_vertices << std::endl;
+
     if (total_vertices > 0) {
         std::vector<glm::vec4> all_vertices;
+        std::cout << "Rendering" << std::endl;
         all_vertices.reserve(total_vertices);
+        std::cout << "Rendering" << std::endl;
         for (const auto& mesh : *meshes) {
             all_vertices.insert(all_vertices.end(), mesh.begin(), mesh.end());
         }
+
 
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, all_vertices.size() * sizeof(glm::vec4), all_vertices.data(), GL_STREAM_DRAW);
@@ -163,6 +176,8 @@ void Renderer::render(const glm::mat4x4& view, const glm::mat4& proj) {
         glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
     }
+
+    std::cout << "Rendering" << std::endl;
 
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
@@ -177,9 +192,12 @@ void Renderer::render(const glm::mat4x4& view, const glm::mat4& proj) {
     render_mutex.unlock();
 }
 
-void Renderer::exchange_data(const std::vector<ChunkRenderDate>& chunck_render_data, const std::vector<std::vector<glm::vec4>>& meshes) {
+void Renderer::exchange_data(const std::vector<ChunkRenderDate>& chunk_render_data, const std::vector<std::vector<glm::vec4>>& meshes, const glm::mat4x4& view, const glm::mat4& proj) {
+    std::cout << "Exchanging..." << std::endl;
     render_mutex.lock();
-    this->chunk_render_data = std::make_unique<std::vector<ChunkRenderDate>>(chunck_render_data);
+    this->view = view;
+    this->proj = proj;
+    this->chunk_render_data = std::make_unique<std::vector<ChunkRenderDate>>(chunk_render_data);
     this->meshes = std::make_unique<std::vector<std::vector<glm::vec4>>>(meshes);
     render_mutex.unlock();
 }
