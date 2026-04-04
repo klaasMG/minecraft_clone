@@ -21,15 +21,15 @@ private:
     GLuint shaderProgram;
     const char* vertexShaderSrc = R"(
         #version 330 core
-        layout (location = 0) in vec3 aPos;
+        layout (location = 0) in vec4 aPos;
         layout(std140) uniform Matrices{
             mat4 proj;
             mat4 view;
         };
+        uniform mat4 model;
 
         void main(){
-            mat4 model = mat4(1.0);
-            gl_Position = proj * view * model * vec4(aPos, 1.0);
+            gl_Position = proj * view * model * aPos;
         })";
 
     const char* fragmentShaderSrc = R"(
@@ -37,7 +37,7 @@ private:
     out vec4 FragColor;
 
     void main(){
-        FragColor = vec4(0.2, 0.6, 0.9, 1.0);
+        FragColor = vec4(1.0, 0.0, 0.0, 1.0);
     })";
 };
 

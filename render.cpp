@@ -143,7 +143,33 @@ void Renderer::render(const glm::mat4x4& view, const glm::mat4& proj, const std:
 
     update_ubo(proj, view);
 
+    size_t total_vertices = 0;
+    for (const auto& data : chunck_render_data) {
+        total_vertices += data.num_vertices;
+    }
+
+    if (total_vertices > 0) {
+        std::vector<glm::vec4> all_vertices;
+        all_vertices.reserve(total_vertices);
+        for (const auto& mesh : meshes) {
+            all_vertices.insert(all_vertices.end(), mesh.begin(), mesh.end());
+        }
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, all_vertices.size() * sizeof(glm::vec4), all_vertices.data(), GL_STREAM_DRAW);
+
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+    }
+
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+
+    GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
+
+    for (const auto& data : chunck_render_data) {
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &data.model_matrix[0][0]);
+        glDrawArrays(GL_TRIANGLES, data.vertex_offset, data.num_vertices);
+    }
+    std::cout << "Renderd:" <<total_vertices << std::endl;
 }

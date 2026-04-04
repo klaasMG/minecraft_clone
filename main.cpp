@@ -31,7 +31,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     lastX = (float)xpos;
     lastY = (float)ypos;
 
-    float sensitivity = 0.1f;
+    float sensitivity = 0.01f;
     xoffset *= sensitivity;
     yoffset *= sensitivity;
 
@@ -68,10 +68,7 @@ int main() {
     Renderer renderer;
     renderer.renderer_init();
     ChunkManager chunk_manager;
-    Player player;
-    player.make_projection_matrix(90.0f, 1.0f, 0.1f, 100.0f);
-    player.computeForward();
-    player.make_view_matrix();
+    Player player = Player();
     chunk_manager.get_chunks(glm::i64vec2(player.position[0], player.position[1]), 0);
 
     glfwSetWindowUserPointer(window, &player);
@@ -104,7 +101,9 @@ int main() {
             player.move_up(-1);
             std::cout << "shift" <<std::endl;
         }
-        renderer.render(player.view, player.projection);
+        auto chunk_render_data = chunk_manager.get_chunk_render_date(glm::i64vec2(player.position[0], player.position[2]), 2);
+        auto meshes = chunk_manager.get_meshes(glm::i64vec2(player.position[0], player.position[2]), 2);
+        renderer.render(player.view, player.projection, chunk_render_data, meshes);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

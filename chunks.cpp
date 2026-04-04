@@ -2,12 +2,16 @@
 #include "vec3.hpp"
 #include "mat4x4.hpp"
 #include "ext/matrix_transform.hpp"
+#ifndef CHUNK_SIZE
+#define CHUNK_SIZE 16.0
+#endif
+
 
 glm::mat4x4 createModelMatrix(const glm::i64vec2& worldPos) {
     glm::vec3 position(
-        static_cast<float>(worldPos.x),
+        static_cast<float>(worldPos.x) * CHUNK_SIZE,
         0.0f,
-        static_cast<float>(worldPos.y)
+        static_cast<float>(worldPos.y) * CHUNK_SIZE
     );
 
     glm::mat4 model(1.0f);

@@ -11,6 +11,9 @@
 #include <map>
 #include <memory>
 #include <variant>
+#ifndef CHUNK_SIZE
+#define CHUNK_SIZE 16.0
+#endif
 
 struct ChunkRenderDate {
     glm::mat4x4 model_matrix;

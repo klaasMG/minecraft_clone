@@ -6,6 +6,7 @@
 
 class Player {
 public:
+    Player();
     void change_yaw(float delta_yaw);
     void change_pitch(float delta_pitch);
     void move_forward(float amount);
@@ -18,7 +19,7 @@ public:
     glm::mat4x4 projection = glm::mat4x4(0);
     void make_view_matrix();
     void computeForward();
-    glm::vec3 position = glm::vec3(0);
+    glm::vec3 position{};
 
 private:
     float velocity = 5;
