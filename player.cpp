@@ -16,10 +16,6 @@ void Player::move_forward(float amount) {
     glm::vec3 flatForward = glm::normalize(glm::vec3(forward.x, 0.0f, forward.z));
     position += flatForward * amount;
     make_view_matrix();
-    for (int i = 0; i < 3; i++) {
-        float value = position[i];
-        std::cout << "forward: " << value << std::endl;
-    }
 }
 
 void Player::move_right(float amount) {
@@ -27,10 +23,6 @@ void Player::move_right(float amount) {
     glm::vec3 right = glm::normalize(glm::cross(flatForward, glm::vec3(0, 1, 0)));
     position += right * amount;
     make_view_matrix();
-    for (int i = 0; i < 3; i++) {
-        float value = position[i];
-        std::cout << "right: "<< value << std::endl;
-    }
 }
 
 void Player::move_up(float amount) {
@@ -38,10 +30,6 @@ void Player::move_up(float amount) {
     glm::vec3 up = glm::normalize(glm::cross(right, forward));
     position += up * amount;
     make_view_matrix();
-    for (int i = 0; i < 3; i++) {
-        float value = position[i];
-        std::cout << "right: " << value << std::endl;
-    }
 }
 
 void Player::change_pitch(float delta_pitch) {
@@ -66,24 +54,8 @@ void Player::computeForward(){
 void Player::make_view_matrix(){
     glm::vec3 target = position + forward;
     view = glm::lookAt(position, target, glm::vec3(0, 1, 0));
-
-    std::cout << "View matrix:" << std::endl;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            std::cout << view[j][i] << " ";
-        }
-        std::cout << std::endl;
-    }
 }
 
 void Player::make_projection_matrix(float fov, float aspect, float near, float far){
     projection = glm::perspective(glm::radians(fov), aspect, near, far);
-
-    std::cout << "Projection matrix:" << std::endl;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
-            std::cout << projection[j][i] << " ";
-        }
-        std::cout << std::endl;
-    }
 }

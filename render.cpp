@@ -1,5 +1,7 @@
 #include "player.h"
 #include "render.h"
+
+#include <complex>
 #include <glad/glad.h>
 #include <iostream>
 
@@ -59,71 +61,15 @@ GLuint Renderer::createProgram(const char* vertex_shader_src, const char* fragme
 void Renderer::renderer_init() {
     glEnable(GL_DEPTH_TEST);
 
-    float vertices[] = {
-        // Front
-         4.5f, -0.5f,  0.5f,
-         5.5f, -0.5f,  0.5f,
-         5.5f,  0.5f,  0.5f,
-
-         5.5f,  0.5f,  0.5f,
-         4.5f,  0.5f,  0.5f,
-         4.5f, -0.5f,  0.5f,
-
-        // Back
-         4.5f, -0.5f, -0.5f,
-         4.5f,  0.5f, -0.5f,
-         5.5f,  0.5f, -0.5f,
-
-         5.5f,  0.5f, -0.5f,
-         5.5f, -0.5f, -0.5f,
-         4.5f, -0.5f, -0.5f,
-
-        // Left
-         4.5f,  0.5f,  0.5f,
-         4.5f,  0.5f, -0.5f,
-         4.5f, -0.5f, -0.5f,
-
-         4.5f, -0.5f, -0.5f,
-         4.5f, -0.5f,  0.5f,
-         4.5f,  0.5f,  0.5f,
-
-        // Right
-         5.5f,  0.5f,  0.5f,
-         5.5f, -0.5f, -0.5f,
-         5.5f,  0.5f, -0.5f,
-
-         5.5f, -0.5f, -0.5f,
-         5.5f,  0.5f,  0.5f,
-         5.5f, -0.5f,  0.5f,
-
-        // Top
-         4.5f,  0.5f, -0.5f,
-         4.5f,  0.5f,  0.5f,
-         5.5f,  0.5f,  0.5f,
-
-         5.5f,  0.5f,  0.5f,
-         5.5f,  0.5f, -0.5f,
-         4.5f,  0.5f, -0.5f,
-
-        // Bottom
-         4.5f, -0.5f, -0.5f,
-         5.5f, -0.5f,  0.5f,
-         4.5f, -0.5f,  0.5f,
-
-         5.5f, -0.5f,  0.5f,
-         4.5f, -0.5f, -0.5f,
-         5.5f, -0.5f, -0.5f
-    };
-
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     shaderProgram = createProgram(vertexShaderSrc, fragmentShaderSrc);
@@ -139,65 +85,36 @@ void Renderer::renderer_destroy() {
     glDeleteProgram(shaderProgram);
 }
 
-void Renderer::render() {
-    std::cout << "Rendering..." << std::endl;
-    render_mutex.lock();
-    glClearColor(0.51f, 0.1f, 0.1f, 1.0f);
-    std::cout << "Rendering" << std::endl;
+void Renderer::render(const glm::mat4x4& view, const glm::mat4x4& proj, const std::vector<ChunkRenderData>& chunk_render_data, const std::vector<std::vector<glm::vec4>>& meshes) {
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
     update_ubo(proj, view);
 
-    std::cout << "Rendering" << std::endl;
-
     size_t total_vertices = 0;
-    for (const auto& data : *chunk_render_data) {
+    for (const auto& data : chunk_render_data) {
         total_vertices += data.num_vertices;
     }
 
-    std::cout << "Rendering" << std::endl;
-
-    std::cout << "Total vertices: " << total_vertices << std::endl;
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     if (total_vertices > 0) {
         std::vector<glm::vec4> all_vertices;
-        std::cout << "Rendering" << std::endl;
         all_vertices.reserve(total_vertices);
-        std::cout << "Rendering" << std::endl;
-        for (const auto& mesh : *meshes) {
+        for (const auto& mesh : meshes) {
             all_vertices.insert(all_vertices.end(), mesh.begin(), mesh.end());
         }
 
-
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
         glBufferData(GL_ARRAY_BUFFER, all_vertices.size() * sizeof(glm::vec4), all_vertices.data(), GL_STREAM_DRAW);
-
-        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
     }
 
-    std::cout << "Rendering" << std::endl;
-
     glUseProgram(shaderProgram);
-    glBindVertexArray(VAO);
 
     GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
 
-    for (const auto& data : *chunk_render_data) {
+    for (const auto& data : chunk_render_data) {
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &data.model_matrix[0][0]);
         glDrawArrays(GL_TRIANGLES, data.vertex_offset, data.num_vertices);
     }
-    std::cout << "Renderd:" <<total_vertices << std::endl;
-    render_mutex.unlock();
-}
-
-void Renderer::exchange_data(const std::vector<ChunkRenderDate>& chunk_render_data, const std::vector<std::vector<glm::vec4>>& meshes, const glm::mat4x4& view, const glm::mat4& proj) {
-    std::cout << "Exchanging..." << std::endl;
-    render_mutex.lock();
-    this->view = view;
-    this->proj = proj;
-    this->chunk_render_data = std::make_unique<std::vector<ChunkRenderDate>>(chunk_render_data);
-    this->meshes = std::make_unique<std::vector<std::vector<glm::vec4>>>(meshes);
-    render_mutex.unlock();
 }

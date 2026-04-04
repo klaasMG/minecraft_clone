@@ -66,21 +66,12 @@ int Application::init_app() {
         std::cerr << "Failed to init GLAD\n";
         return -1;
     }
-    chunk_manager.get_chunks(glm::i64vec2(player.position[0], player.position[2]), 0);
+    renderer.renderer_init();
 
     return 0;
 }
 
 void Application::run_app() {
-
-    render_thread = std::thread([this]() {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        glfwMakeContextCurrent(window);
-        while (running) {
-            renderer.render();
-        }
-    });
-
     while (!glfwWindowShouldClose(window)) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(window, true);
@@ -105,14 +96,10 @@ void Application::run_app() {
         }
         auto chunk_render_data = chunk_manager.get_chunk_render_date(glm::i64vec2(player.position[0], player.position[2]), 2);
         auto meshes = chunk_manager.get_meshes(glm::i64vec2(player.position[0], player.position[2]), 2);
-        renderer.exchange_data(chunk_render_data, meshes, player.view, player.projection);
+        renderer.render(player.view, player.projection, chunk_render_data, meshes);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
-    }
-    running = false;
-    if (render_thread.joinable()) {
-        render_thread.join();
     }
 }
 

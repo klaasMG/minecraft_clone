@@ -13,12 +13,12 @@ public:
     void move_right(float amount);
     void move_up(float amount);
     void make_projection_matrix(float fov, float aspect, float near, float far);
+    void computeForward();
+    void make_view_matrix();
     float pitch = 0;
     float yaw = 0;
     glm::mat4x4 view = glm::mat4x4(0);
     glm::mat4x4 projection = glm::mat4x4(0);
-    void make_view_matrix();
-    void computeForward();
     glm::vec3 position{};
 
 private:
