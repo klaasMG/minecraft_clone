@@ -137,7 +137,7 @@ void Renderer::renderer_destroy() {
     glDeleteProgram(shaderProgram);
 }
 
-void Renderer::render(const glm::mat4x4& view, const glm::mat4& proj, const std::vector<glm::mat4x4>& model_matricies, const std::vector<std::vector<glm::mat4x4>>& model_meshes) {
+void Renderer::render(const glm::mat4x4& view, const glm::mat4& proj, const std::vector<ChunkRenderDate>& chunck_render_data, const std::vector<std::vector<glm::vec4>>& meshes) {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

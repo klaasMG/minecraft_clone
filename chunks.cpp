@@ -34,6 +34,31 @@ chunk ChunkManager::create_chunk(const glm::i64vec2& world_pos){
     return std::move(*result);
 }
 
+std::vector<ChunkRenderDate> ChunkManager::get_chunk_render_date(const glm::i64vec2& chunk_pos, int radius) {
+    std::vector<ChunkRenderDate> result;
+    size_t offset = 0;
+
+    for (int dx = -radius; dx <= radius; ++dx) {
+        for (int dz = -radius; dz <= radius; ++dz) {
+            glm::i64vec2 pos(chunk_pos.x + dx, chunk_pos.y + dz);
+            
+            chunk& c = get_chunk(pos);
+            std::vector<glm::vec4>& mesh = get_mesh(c);
+            glm::mat4x4 model = get_model_matrix(pos);
+            
+            ChunkRenderDate data;
+            data.model_matrix = model;
+            data.num_vertices = mesh.size();
+            data.vertex_offset = offset;
+            
+            result.push_back(data);
+            offset += mesh.size();
+        }
+    }
+
+    return result;
+}
+
 std::vector<std::reference_wrapper<chunk>> ChunkManager::get_chunks(const glm::i64vec2& center, int radius){
     std::vector<std::reference_wrapper<chunk>> chunk_result;
 

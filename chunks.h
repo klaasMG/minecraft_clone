@@ -12,6 +12,12 @@
 #include <memory>
 #include <variant>
 
+struct ChunkRenderDate {
+    glm::mat4x4 model_matrix;
+    size_t num_vertices;
+    size_t vertex_offset;
+};
+
 struct Vec2Compare {
     bool operator()(const glm::i64vec2& a, const glm::i64vec2& b) const {
         if (a.x != b.x) return a.x < b.x;
@@ -40,6 +46,7 @@ public:
     chunk& get_chunk(const glm::i64vec2& chunk_pos);
     glm::mat4x4 get_model_matrix(const glm::i64vec2& chunk_pos);
     std::vector<glm::mat4x4> get_model_matricies(const glm::i64vec2& chunk_pos, int radius);
+    std::vector<ChunkRenderDate> get_chunk_render_date(const glm::i64vec2& chunk_pos, int radius);
     std::vector<std::reference_wrapper<chunk>> get_chunks(const glm::i64vec2& center, int radius);
     std::vector<std::vector<glm::vec4>> get_meshes(const glm::i64vec2& center, int radius);
     static chunk create_chunk(const glm::i64vec2& world_pos);

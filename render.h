@@ -3,13 +3,14 @@
 
 #include "glad/glad.h"
 #include "mat4x4.hpp"
+#include "chunks.h"
 #include "player.h"
 
 class Renderer{
 public:
     void renderer_init();
     void renderer_destroy();
-    void render(const glm::mat4x4& view, const glm::mat4& proj, const std::vector<glm::mat4x4>& model_matricies, const std::vector<std::vector<glm::mat4x4>>& model_meshes);
+    void render(const glm::mat4x4& view, const glm::mat4& proj, const std::vector<ChunkRenderDate>& chunck_render_data, const std::vector<std::vector<glm::vec4>>& meshes);
 private:
     void bind_ubo();
     void update_ubo(const glm::mat4x4& proj, const glm::mat4x4& view);
