@@ -23,7 +23,9 @@ add_executable(minecraft_clone main.cpp
         chunks.cpp
         chunks.h
         player.cpp
-        player.h)
+        player.h
+        application.cpp
+        application.h)
 
 add_glad()
 add_glfw()
