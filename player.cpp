@@ -5,7 +5,7 @@
 #include <iostream>
 
 Player::Player() {
-    position = glm::vec3(0.0f, 16.0f, 0.0f);
+    position = glm::vec3(0.0f, 256.0f, 0.0f);
     pitch = 0.0f;
     make_projection_matrix(90.0f, 1.0f, 0.1f, 100.0f);
     computeForward();

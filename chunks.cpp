@@ -138,7 +138,7 @@ std::vector<glm::vec4>& ChunkManager::get_mesh(const chunk& mesh_chunk) {
 
     for (size_t cy = 0; cy < mesh_chunk.chunk_layers.size(); ++cy) {
         const chunk_layer& layer = mesh_chunk.chunk_layers[cy];
-        int y = static_cast<int>(cy);
+        int y = static_cast<int>(cy) * 16;
 
         for (size_t i = 0; i < layer.blocks.size(); ++i) {
             const Block& b = layer.blocks[i];

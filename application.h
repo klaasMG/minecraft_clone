@@ -12,8 +12,6 @@ public:
     void run_app();
     int cleanup_app();
 private:
-    void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-    void framebuffer_size_callback(GLFWwindow* window, int width, int height);
     GLFWwindow* window;
     Player player;
     ChunkManager chunk_manager;

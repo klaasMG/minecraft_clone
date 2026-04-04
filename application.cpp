@@ -53,6 +53,9 @@ int Application::init_app() {
         return -1;
     }
 
+    player = Player();
+    glfwSetWindowUserPointer(window, &player);
+
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -64,10 +67,9 @@ int Application::init_app() {
     }
 
     renderer.renderer_init();
-    player = Player();
-    chunk_manager.get_chunks(glm::i64vec2(player.position[0], player.position[1]), 0);
+    chunk_manager.get_chunks(glm::i64vec2(player.position[0], player.position[2]), 0);
 
-    glfwSetWindowUserPointer(window, &player);
+    return 0;
 }
 
 void Application::run_app() {
@@ -104,7 +106,6 @@ void Application::run_app() {
 
 int Application::cleanup_app() {
     renderer.renderer_destroy();
-
     glfwTerminate();
     return 0;
 }
