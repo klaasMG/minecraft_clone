@@ -94,7 +94,8 @@ void Application::run_app() {
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
             player.move_up(-1);
         }
-        auto chunk_render_data = chunk_manager.get_chunk_render_date(glm::i64vec2(player.position[0], player.position[2]), 2);
+
+        auto chunk_render_data = chunk_manager.get_chunk_render_date(glm::i64vec2(player.position[0], player.position[2]), player.settings.render_distance);
         auto meshes = chunk_manager.get_meshes(glm::i64vec2(player.position[0], player.position[2]), 2);
         renderer.render(player.view, player.projection, chunk_render_data, meshes);
 

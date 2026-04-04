@@ -4,6 +4,10 @@
 #include "mat4x4.hpp"
 #include "vec3.hpp"
 
+struct Settings {
+    int render_distance;
+};
+
 class Player {
 public:
     Player();
@@ -15,6 +19,7 @@ public:
     void make_projection_matrix(float fov, float aspect, float near, float far);
     void computeForward();
     void make_view_matrix();
+    Settings settings = {.render_distance = 16};
     float pitch = 0;
     float yaw = 0;
     glm::mat4x4 view = glm::mat4x4(0);
